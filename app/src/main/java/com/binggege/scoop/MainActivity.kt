@@ -11,5 +11,9 @@ class MainActivity : AppCompatActivity() {
         //this is a zhushi
     }
 
+    fun foo() {
+
+    }
+
 }
 
