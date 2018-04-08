@@ -28,17 +28,15 @@ open class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        ScoopHelper.getInstance().bind(this)
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        ScoopHelper.getInstance().handleEvent(this, ev)
+        ScoopHelper.handleEvent(this, ev)
         return super.dispatchTouchEvent(ev)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        ScoopHelper.getInstance().unbind()
     }
 
 }

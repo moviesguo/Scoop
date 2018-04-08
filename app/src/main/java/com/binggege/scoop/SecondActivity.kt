@@ -2,6 +2,7 @@ package com.binggege.scoop
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.view.MotionEvent
 import com.binggege.scoop.widget.TestFragment
 
 class SecondActivity : MainActivity() {
@@ -15,6 +16,8 @@ class SecondActivity : MainActivity() {
     fun initView() {
         val fragment = TestFragment()
         var transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.fl_second,fragment).commit()
+        transaction.add(R.id.fl_second,fragment)
+        transaction.commit()
     }
+
 }
