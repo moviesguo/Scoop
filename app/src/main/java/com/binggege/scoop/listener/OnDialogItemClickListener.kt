@@ -1,4 +1,4 @@
-package com.binggege.scoop
+package com.binggege.scoop.listener
 
 import android.view.View
 
@@ -7,6 +7,6 @@ import android.view.View
  */
 interface OnDialogItemClickListener {
 
-    fun onClick(view:View)
+    fun onClick(any: Any)
 
 }
