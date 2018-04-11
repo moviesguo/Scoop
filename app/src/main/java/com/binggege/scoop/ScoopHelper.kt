@@ -3,15 +3,13 @@ package com.binggege.scoop
 import android.nfc.Tag
 import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.*
-import android.widget.FrameLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.binggege.scoop.adapter.ListBottomSheetDialogAdapter
 import com.binggege.scoop.listener.OnDialogItemClickListener
 import java.time.LocalDate
@@ -32,6 +30,7 @@ object ScoopHelper{
     private var maskLayout:FrameLayout? = null
 
     private lateinit var hierarchyView:ViewGroup     //当前层级的rootView
+    private var currentParent:ViewGroup? = null
 
     /**
      *
@@ -54,14 +53,19 @@ object ScoopHelper{
      *
      */
     fun handleEvent(activity: AppCompatActivity, ev: MotionEvent?):Boolean {
+
         when (ev?.action) {
             MotionEvent.ACTION_POINTER_3_DOWN -> {
                 init(activity)
                 getAssembly()
                 return true
             }
+            MotionEvent.ACTION_MOVE->{
+                Log.d(TAG, "parentX: ${currentParent?.x} parentY: ${currentParent?.y} parentScrollX: ${currentParent?.scrollX} parentScrollY: ${currentParent?.scrollY}")
+                return true
+            }
         }
-        return false
+        return true
     }
 
     /**
@@ -84,13 +88,75 @@ object ScoopHelper{
 
     }
 
+    //尝试给需要标记的View外部套上FrameLayout，ViewPager这部分出现了问题，他奶奶的
+    fun replaceParent(any: Any) {
+
+
+        var fragment = any as Fragment
+        var view = fragment.view
+        var parent = view?.parent as ViewGroup
+        val resources = currentActivity.resources
+
+        maskLayout = FrameLayout(currentActivity)
+        maskLayout!!.layoutParams = view.layoutParams
+        maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
+        maskLayout!!.background.alpha = 100
+        parent.removeAllViews()
+        parent.addView(maskLayout,0)
+
+//        var view:View? = null
+//        var text = any::class.java.simpleName
+//
+//        val resources = currentActivity.resources
+//
+//        if (any is View) view = any
+//        if (any is Fragment) view =any.view
+//
+//        var parent = view?.parent as ViewGroup
+//        parent.removeView(view)
+//        var v = LinearLayout(currentActivity)
+//        v.layoutParams = view.layoutParams
+//        iteratorRoot(parent)
+//        maskLayout = FrameLayout(currentActivity)
+//        maskLayout!!.layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,RelativeLayout.LayoutParams.MATCH_PARENT)
+//        maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
+//        maskLayout!!.background.alpha = 100
+//        view.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+//        maskLayout?.addView(view)
+//        val tv = TextView(currentActivity)
+//        tv.gravity = Gravity.CENTER
+//        tv.textSize = 36F
+//        tv.text = text
+//        tv.setTextColor(resources.getColor(R.color.colorWhite))
+//        maskLayout!!.addView(tv)
+//        v.addView(maskLayout)
+//        parent.addView(v)
+//        mDialog.dismiss()
+    }
+
+    fun iteratorRoot(view: View) {
+
+        if (view is ViewGroup) {
+            Log.d(TAG, "view: ${view::class.java.simpleName}")
+            var childCount = view.childCount
+            var i = 0
+            while (i < childCount) {
+                iteratorRoot(view.getChildAt(i))
+                i++
+            }
+        }
+
+    }
+
     /**
      * 用于标记选中状态的蒙版
      */
     fun markAssembly(any: Any) {
+
         Log.d(TAG,"${hierarchyView::class.java.simpleName}")
         var view:View? = null
         var text = any::class.java.simpleName
+
 
         //获取最外层FrameLayout 就是我们setContentView的父View
         val viewGroup = currentActivity.window.decorView.findViewById<FrameLayout>(android.R.id.content)
@@ -98,8 +164,10 @@ object ScoopHelper{
         //移出上一个maskLayout
         if(maskLayout!=null) viewGroup.removeView(maskLayout)
 
-        if (any is View) view = any as RecyclerView
+        if (any is View) view = any
         else if (any is Fragment) view = any.view
+
+        currentParent = view?.parent as ViewGroup
 
         val resources = currentActivity.resources
 
@@ -116,7 +184,7 @@ object ScoopHelper{
         tv.setTextColor(resources.getColor(R.color.colorWhite))
         maskLayout!!.addView(tv)
 
-        Log.d(TAG,"x: ${view!!.x} y:${view.y} height:${view.height} width:${view.width}")
+        Log.d(TAG,"x: ${view!!.x} y:${view.y} height:${view.height} width:${view.width} scrollX: ${view.scrollX} scrollY: ${view.scrollY}")
 
         locationView(maskLayout!!, view, viewGroup.hashCode())
 
@@ -143,11 +211,15 @@ object ScoopHelper{
         Log.d(TAG,"${parent::class.java.simpleName} x: ${parent.x} y: ${parent.y} scrollX: ${parent.scrollX} scrollY: ${parent.scrollY}")
         while (parent.hashCode() != hashCode) {
             //存在ScrollView或者可滑动View（还没测试）的情况下，有时会自动往上滑动
-            x += (view.x + parent.x - parent.scrollX)
-            y += (view.y + parent.y - parent.scrollY)
+            x += (parent.x - parent.scrollX)
+            y += (parent.y - parent.scrollY)
             parent = parent.parent as ViewGroup
             Log.d(TAG, "${parent::class.java.simpleName} x: ${parent.x} y: ${parent.y} scrollX: ${parent.scrollX} scrollY: ${parent.scrollY}")
         }
+
+        Log.d(TAG,"locationX: $x locationY: $y")
+        x += view.x
+        y += view.y
         maskLayout.x = x
         maskLayout.y = y
     }
@@ -169,8 +241,7 @@ object ScoopHelper{
         val view = LayoutInflater.from(activity).inflate(R.layout.dialog_bootom_sheet, null)
         rv = view.findViewById<RecyclerView>(R.id.rv_dialog)
         rv.layoutManager = LinearLayoutManager(activity)
-        var adapter = rv.adapter
-        mDialog = BottomSheetDialog(activity)
+        mDialog = BottomSheetDialog(currentActivity)
         mDialog.setContentView(view)
     }
 
@@ -211,13 +282,15 @@ object ScoopHelper{
 
     //吐司快捷方法
     private fun showToast(text: String) {
-        Toast.makeText(currentActivity,text, Toast.LENGTH_LONG).show()
+        if (currentActivity != null) {
+            Toast.makeText(currentActivity,text, Toast.LENGTH_LONG).show()
+        }
     }
 
     //Assembly列表的item点击操作
     class DialogItemClickListener : OnDialogItemClickListener {
         override fun onClick(any: Any) {
-            markAssembly(any)
+            replaceParent(any)
         }
     }
 
