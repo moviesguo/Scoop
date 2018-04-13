@@ -190,6 +190,7 @@ object ScoopHelper{
 
         val layoutParams = FrameLayout.LayoutParams(view.width,view.height)
         viewGroup.addView(maskLayout, layoutParams)
+        //注册屏幕每帧刷新完成回调
         Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!))
         mDialog.dismiss()
     }
