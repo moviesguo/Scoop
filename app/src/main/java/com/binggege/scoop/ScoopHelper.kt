@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import com.binggege.scoop.adapter.ListBottomSheetDialogAdapter
+import com.binggege.scoop.listener.FPSFrameCallBack
 import com.binggege.scoop.listener.OnDialogItemClickListener
 import java.time.LocalDate
 import kotlin.collections.ArrayList
@@ -96,7 +97,6 @@ object ScoopHelper{
         var view = fragment.view
         var parent = view?.parent as ViewGroup
         val resources = currentActivity.resources
-
         maskLayout = FrameLayout(currentActivity)
         maskLayout!!.layoutParams = view.layoutParams
         maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
@@ -153,20 +153,20 @@ object ScoopHelper{
      */
     fun markAssembly(any: Any) {
 
+
         Log.d(TAG,"${hierarchyView::class.java.simpleName}")
         var view:View? = null
         var text = any::class.java.simpleName
 
-
         //获取最外层FrameLayout 就是我们setContentView的父View
-        val viewGroup = currentActivity.window.decorView.findViewById<FrameLayout>(android.R.id.content)
+        val viewGroup = currentActivity.window.decorView as ViewGroup
 
         //移出上一个maskLayout
         if(maskLayout!=null) viewGroup.removeView(maskLayout)
 
         if (any is View) view = any
         else if (any is Fragment) view = any.view
-
+        hierarchyView = view as ViewGroup
         currentParent = view?.parent as ViewGroup
 
         val resources = currentActivity.resources
@@ -190,6 +190,7 @@ object ScoopHelper{
 
         val layoutParams = FrameLayout.LayoutParams(view.width,view.height)
         viewGroup.addView(maskLayout, layoutParams)
+        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!))
         mDialog.dismiss()
     }
 
@@ -290,7 +291,7 @@ object ScoopHelper{
     //Assembly列表的item点击操作
     class DialogItemClickListener : OnDialogItemClickListener {
         override fun onClick(any: Any) {
-            replaceParent(any)
+            markAssembly(any)
         }
     }
 
