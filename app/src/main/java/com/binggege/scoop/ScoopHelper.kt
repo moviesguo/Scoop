@@ -30,8 +30,6 @@ object ScoopHelper{
 
     private var maskLayout:FrameLayout? = null      //蒙版view
 
-    private var maskBoundaryLayout:LinearLayout? = null       //蒙版view的父view，由于控制蒙版view跟随移动时的边界
-
     private lateinit var hierarchyView:ViewGroup     //当前层级的rootView
     private var currentParent:ViewGroup? = null
 
@@ -162,7 +160,7 @@ object ScoopHelper{
         val viewGroup = currentActivity.window.decorView as ViewGroup
 
         //移出上一个maskLayout
-        if(maskBoundaryLayout!=null) viewGroup.removeView(maskBoundaryLayout)
+        if(maskLayout!=null) viewGroup.removeView(maskLayout)
 
         if (any is ViewGroup) view = any
         else if (any is Fragment) view = any.view
@@ -175,11 +173,7 @@ object ScoopHelper{
         maskLayout = FrameLayout(currentActivity)
         maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
         maskLayout!!.background.alpha = 100
-
-        maskBoundaryLayout = LinearLayout(currentActivity)
-        maskBoundaryLayout?.setBackgroundColor(resources.getColor(R.color.colorWhite))
-        maskBoundaryLayout!!.background.alpha = 0
-
+        maskLayout?.setWillNotDraw(true)
         //蒙版的TexiView
         val tv = TextView(currentActivity)
         tv.gravity = Gravity.CENTER
@@ -190,18 +184,16 @@ object ScoopHelper{
 
         Log.d(TAG,"x: ${view!!.x} y:${view.y} height:${view.height} width:${view.width} scrollX: ${view.scrollX} scrollY: ${view.scrollY}")
 
-        locationView(maskBoundaryLayout!!, view.parent as ViewGroup, viewGroup.hashCode())
+        locationView(maskLayout!!, view.parent as ViewGroup, viewGroup.hashCode())
 
-        val transParams = LinearLayout.LayoutParams(view.width, view.height)
-        val layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT)
+        val layoutParams = FrameLayout.LayoutParams(view.width,view.height)
         //先将maskLayout加入maskBoundaryLayout
-        maskBoundaryLayout!!.addView(maskLayout,layoutParams)
 
         //再将maskBoundaryLayout加入viewTree
-        viewGroup.addView(maskBoundaryLayout, transParams)
+        viewGroup.addView(maskLayout, layoutParams)
 
         //注册屏幕每帧刷新完成回调
-        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!, maskBoundaryLayout!!))
+        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!))
 
         mDialog.dismiss()
     }
