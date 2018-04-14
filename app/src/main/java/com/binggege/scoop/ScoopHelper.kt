@@ -28,7 +28,9 @@ object ScoopHelper{
 
     private lateinit var currentActivity:AppCompatActivity  //当前界面的activity
 
-    private var maskLayout:FrameLayout? = null
+    private var maskLayout:FrameLayout? = null      //蒙版view
+
+    private var maskBoundaryLayout:LinearLayout? = null       //蒙版view的父view，由于控制蒙版view跟随移动时的边界
 
     private lateinit var hierarchyView:ViewGroup     //当前层级的rootView
     private var currentParent:ViewGroup? = null
@@ -62,7 +64,6 @@ object ScoopHelper{
                 return true
             }
             MotionEvent.ACTION_MOVE->{
-                Log.d(TAG, "parentX: ${currentParent?.x} parentY: ${currentParent?.y} parentScrollX: ${currentParent?.scrollX} parentScrollY: ${currentParent?.scrollY}")
                 return true
             }
         }
@@ -91,7 +92,6 @@ object ScoopHelper{
 
     //尝试给需要标记的View外部套上FrameLayout，ViewPager这部分出现了问题，他奶奶的
     fun replaceParent(any: Any) {
-
 
         var fragment = any as Fragment
         var view = fragment.view
@@ -162,19 +162,23 @@ object ScoopHelper{
         val viewGroup = currentActivity.window.decorView as ViewGroup
 
         //移出上一个maskLayout
-        if(maskLayout!=null) viewGroup.removeView(maskLayout)
+        if(maskBoundaryLayout!=null) viewGroup.removeView(maskBoundaryLayout)
 
-        if (any is View) view = any
+        if (any is ViewGroup) view = any
         else if (any is Fragment) view = any.view
         hierarchyView = view as ViewGroup
         currentParent = view?.parent as ViewGroup
 
         val resources = currentActivity.resources
-
+        Log.d(TAG,"${view.hashCode()}")
         //构建蒙版View
         maskLayout = FrameLayout(currentActivity)
         maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
         maskLayout!!.background.alpha = 100
+
+        maskBoundaryLayout = LinearLayout(currentActivity)
+        maskBoundaryLayout?.setBackgroundColor(resources.getColor(R.color.colorWhite))
+        maskBoundaryLayout!!.background.alpha = 0
 
         //蒙版的TexiView
         val tv = TextView(currentActivity)
@@ -186,12 +190,19 @@ object ScoopHelper{
 
         Log.d(TAG,"x: ${view!!.x} y:${view.y} height:${view.height} width:${view.width} scrollX: ${view.scrollX} scrollY: ${view.scrollY}")
 
-        locationView(maskLayout!!, view, viewGroup.hashCode())
+        locationView(maskBoundaryLayout!!, view.parent as ViewGroup, viewGroup.hashCode())
 
-        val layoutParams = FrameLayout.LayoutParams(view.width,view.height)
-        viewGroup.addView(maskLayout, layoutParams)
+        val transParams = LinearLayout.LayoutParams(view.width, view.height)
+        val layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT)
+        //先将maskLayout加入maskBoundaryLayout
+        maskBoundaryLayout!!.addView(maskLayout,layoutParams)
+
+        //再将maskBoundaryLayout加入viewTree
+        viewGroup.addView(maskBoundaryLayout, transParams)
+
         //注册屏幕每帧刷新完成回调
-        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!))
+        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!, maskBoundaryLayout!!))
+
         mDialog.dismiss()
     }
 
@@ -206,7 +217,7 @@ object ScoopHelper{
      * 以x举例，每个view的getX()返回的是自己相对与父View的位置，所以这里不断的向上累加的x就是自己相对于FrameLayout的位置
      * 除此之外还要考虑存在ScrollView这类可滑动的view，这里直接减去了parent的scrollX/Y
      */
-    private fun locationView(maskLayout: FrameLayout, view: View,hashCode:Int) {
+    private fun locationView(maskLayout: ViewGroup, view: View,hashCode:Int) {
         var x = 0F
         var y = 0F
         var parent = view.parent as ViewGroup
@@ -289,11 +300,19 @@ object ScoopHelper{
         }
     }
 
+    /**
+     * 当跳转另一个activity的时候，释放之前的所有变量，防止内存泄漏
+     */
+    fun onDestroy() {
+
+    }
+
     //Assembly列表的item点击操作
     class DialogItemClickListener : OnDialogItemClickListener {
         override fun onClick(any: Any) {
             markAssembly(any)
         }
     }
+
 
 }

@@ -7,6 +7,7 @@
 
     <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_marginTop="20dp"
         android:layout_height="240dp"
         android:layout_width="match_parent">
 
@@ -16,6 +17,7 @@
 
             <TextView
                 android:id="@+id/tv_main"
+                android:gravity="center"
                 android:textSize="24sp"
                 android:padding="20dp"
                 android:text="MainActivity"
@@ -25,10 +27,21 @@
             <android.support.v4.view.ViewPager
                 android:id="@+id/vp_main"
                 android:layout_below="@id/tv_main"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:clipChildren="false"
                 android:layout_width="match_parent"
                 android:layout_height="200dp">
             </android.support.v4.view.ViewPager>
+
+            <TextView
+                android:gravity="center"
+                android:textSize="24sp"
+                android:padding="20dp"
+                android:text="Bottom"
+                android:layout_below="@id/vp_main"
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
 
         </RelativeLayout>
 
