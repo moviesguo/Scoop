@@ -21,6 +21,9 @@ class FPSFrameCallBack(view: ViewGroup,mask:View,maskBoundary:View):Choreographe
 
 
     //maskView 当前所处位置的边界
+    /**
+     * 边界的范围由小到大，如果超出了边界之后，获取当前边界的parent再次更新边界
+     */
     var boundaryLeft = 1
     var boundaryRight = view.x + view.width
     var boundaryTop = view.y
