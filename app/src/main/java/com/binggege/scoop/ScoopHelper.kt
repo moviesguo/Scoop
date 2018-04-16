@@ -1,5 +1,6 @@
 package com.binggege.scoop
 
+import android.graphics.Rect
 import android.nfc.Tag
 import android.support.design.widget.BottomSheetDialog
 import android.support.v4.app.Fragment
@@ -27,6 +28,8 @@ object ScoopHelper{
     private lateinit var rv: RecyclerView           //BottomSheetDialog的列表
 
     private lateinit var currentActivity:AppCompatActivity  //当前界面的activity
+
+    private var fpsFrameCallBack:FPSFrameCallBack? = null //刷新监听
 
     private var maskLayout:FrameLayout? = null      //蒙版view
 
@@ -62,6 +65,26 @@ object ScoopHelper{
                 return true
             }
             MotionEvent.ACTION_MOVE->{
+                if(hierarchyView!=null) {
+                    var rect = Rect()
+                    var location = IntArray(2)
+                    hierarchyView.getGlobalVisibleRect(rect)
+                    hierarchyView.getLocationOnScreen(location)
+                    Log.d(TAG,"""hierarchyView:
+                              left: ${rect.left} right: ${rect.right}
+                              top: ${rect.top} bottom: ${rect.bottom}
+                              transX: ${hierarchyView.translationX} transY: ${hierarchyView.translationY}
+                               x: ${location[0]} y: ${location[1]}""")
+                    maskLayout?.getGlobalVisibleRect(rect)
+                    maskLayout?.getLocationOnScreen(location)
+                    Log.d(TAG,"""maskLayout:
+                              left: ${rect.left} right: ${rect.right}
+                              top: ${rect.top} bottom: ${rect.bottom}
+                              transX: ${maskLayout?.translationX} transY: ${maskLayout?.translationY}
+                               x: ${location[0]} y: ${location[1]}""")
+
+                }
+
                 return true
             }
         }
@@ -152,7 +175,7 @@ object ScoopHelper{
     fun markAssembly(any: Any) {
 
 
-        Log.d(TAG,"${hierarchyView::class.java.simpleName}")
+        Log.d(TAG,"hierarchyView: ${hierarchyView::class.java.simpleName}")
         var view:View? = null
         var text = any::class.java.simpleName
 
@@ -173,7 +196,16 @@ object ScoopHelper{
         maskLayout = FrameLayout(currentActivity)
         maskLayout!!.setBackgroundColor(resources.getColor(R.color.colorDimGrey))
         maskLayout!!.background.alpha = 100
-        maskLayout?.setWillNotDraw(true)
+
+//
+        var rect = Rect()
+        view.getGlobalVisibleRect(rect)
+
+        maskLayout?.left = rect.left
+        maskLayout?.right = rect.right
+        maskLayout?.top = rect.top
+        maskLayout?.bottom = rect.bottom
+
         //蒙版的TexiView
         val tv = TextView(currentActivity)
         tv.gravity = Gravity.CENTER
@@ -184,17 +216,19 @@ object ScoopHelper{
 
         Log.d(TAG,"x: ${view!!.x} y:${view.y} height:${view.height} width:${view.width} scrollX: ${view.scrollX} scrollY: ${view.scrollY}")
 
-        locationView(maskLayout!!, view.parent as ViewGroup, viewGroup.hashCode())
+//        locationView(maskLayout!!, view.parent as ViewGroup, viewGroup.hashCode())
 
         val layoutParams = FrameLayout.LayoutParams(view.width,view.height)
-        //先将maskLayout加入maskBoundaryLayout
 
         //再将maskBoundaryLayout加入viewTree
-        viewGroup.addView(maskLayout, layoutParams)
+        viewGroup.addView(maskLayout,layoutParams)
 
         //注册屏幕每帧刷新完成回调
-        Choreographer.getInstance().postFrameCallback(FPSFrameCallBack(view!!, maskLayout!!))
-
+        if (fpsFrameCallBack != null) {
+            Choreographer.getInstance().removeFrameCallback(fpsFrameCallBack)
+        }
+        fpsFrameCallBack = FPSFrameCallBack(view!!, maskLayout!!)
+        Choreographer.getInstance().postFrameCallback(fpsFrameCallBack)
         mDialog.dismiss()
     }
 
