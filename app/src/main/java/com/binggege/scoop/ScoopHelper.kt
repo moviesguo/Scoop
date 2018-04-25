@@ -16,6 +16,7 @@ import com.binggege.scoop.listener.FPSFrameCallBack
 import com.binggege.scoop.listener.OnDialogItemClickListener
 import java.time.LocalDate
 import kotlin.collections.ArrayList
+import kotlin.properties.Delegates
 
 /**
  * Created by moviesguo on 2018/4/2.
@@ -174,7 +175,7 @@ object ScoopHelper{
      */
     fun markAssembly(any: Any) {
 
-
+        
         Log.d(TAG,"hierarchyView: ${hierarchyView::class.java.simpleName}")
         var view:View? = null
         var text = any::class.java.simpleName

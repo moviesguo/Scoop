@@ -22,28 +22,51 @@ class FPSFrameCallBack(view: ViewGroup,mask:View):Choreographer.FrameCallback {
      *     每一帧刷新时会回调，这样做出来的效果会有一些滞后
      */
     override fun doFrame(frameTimeNanos: Long) {
-        view.let {
 
-            var location:IntArray? = kotlin.IntArray(2)
-            view.getLocationOnScreen(location)
-            var rect= Rect()
-            var globalVisibleRect = view.getGlobalVisibleRect(rect)
-            Log.d(TAG, "left: ${rect.left} right: ${rect.right} top: ${rect.top} bottom: ${rect.bottom} globalVisibleRect :$globalVisibleRect")
-            Log.d(TAG, "maskViewLeft: ${maskView.left} maskViewRight: ${maskView.right} maskViewTop: ${maskView.top} maskViewBottom: ${maskView.bottom} globalVisibleRect :$globalVisibleRect")
-            if (!globalVisibleRect) {
-                maskView.visibility = View.INVISIBLE
-            } else {
-                maskView.left = rect.left
-                maskView.right = rect.right
-                maskView.top = rect.top
-                maskView.bottom = rect.bottom
-                maskView.scrollX = (maskView.x - location!![0]).toInt()
-                maskView.scrollY = (maskView.y - location[1]).toInt()
-                maskView.visibility = View.VISIBLE
-            }
+        var location:IntArray? = kotlin.IntArray(2)
+        view.getLocationOnScreen(location)
+        var rect= Rect()
+        var visible = view.getGlobalVisibleRect(rect)
+        Log.d(TAG, view.toString())
+        var layoutParams = maskView.layoutParams as FrameLayout.LayoutParams
+        if (!visible) {
+            maskView.visibility = View.INVISIBLE
+        } else {
+            layoutParams.move(rect)
+//            layoutParams.leftMargin = rect.left
+//            layoutParams.rightMargin = rect.right
+//            layoutParams.bottomMargin = rect.bottom
+//            layoutParams.topMargin = rect.top
+//            layoutParams.width = rect.right - rect.left
+//            layoutParams.height = rect.bottom - rect.top
+//            maskView.layoutParams = layoutParams
+//            maskView.visibility = View.VISIBLE
         }
+
+
+//            if (!visible) {
+//                maskView.visibility = View.INVISIBLE
+//            } else {
+//                maskView.left = rect.left
+//                maskView.right = rect.right
+//                maskView.top = rect.top
+//                maskView.bottom = rect.bottom
+//
+//                maskView.visibility = View.VISIBLE
+//            }
         //继续注册下一帧回调
         Choreographer.getInstance().postFrameCallback(this)
+    }
+
+    fun FrameLayout.LayoutParams.move(rect: Rect){
+        this.leftMargin = rect.left
+        this.rightMargin = rect.right
+        this.bottomMargin = rect.bottom
+        this.topMargin = rect.top
+        this.width = rect.right - rect.left
+        this.height = rect.bottom - rect.top
+        maskView.layoutParams = this
+        maskView.visibility = View.VISIBLE
     }
 
 
