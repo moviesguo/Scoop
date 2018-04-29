@@ -32,14 +32,16 @@ open class MainActivity : AppCompatActivity() {
         var data = listOf<String>("item","item","item"
                 ,"item","item","item","item")
         rv_horizontal.adapter = HorizontalAdapter(this,data)
-        rv_horizontal.layoutManager = LinearLayoutManager(this,OrientationHelper.HORIZONTAL,false)
+        rv_horizontal.layoutManager = LinearLayoutManager(this, OrientationHelper.HORIZONTAL, false)
         rv_vertical.adapter = VerticalAdapter(this,data)
         rv_vertical.layoutManager = LinearLayoutManager(this)
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        ScoopHelper.handleEvent(this, ev)
-        return super.dispatchTouchEvent(ev)
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (!Scoop.handleTouchEvent(this, ev)) {
+            return super.dispatchTouchEvent(ev)
+        }
+        return true
     }
 
 
