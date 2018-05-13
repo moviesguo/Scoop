@@ -21,13 +21,13 @@ class ListBottomSheetDialogAdapter(context: Context, data: ArrayList<Any>,itemCl
     private var itemClickListener: OnDialogItemClickListener = itemClickListener
 
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ListBottomSheetDialogHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListBottomSheetDialogHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_dialog_bottom_sheet,parent,false)
         val holder = ListBottomSheetDialogHolder(view)
         return holder
     }
 
-    override fun onBindViewHolder(holder: ListBottomSheetDialogHolder?, position: Int) {
+    override fun onBindViewHolder(holder: ListBottomSheetDialogHolder, position: Int) {
         val item = data.get(position)
         holder?.tv?.text = item::class.java.simpleName
         holder?.itemView?.setOnClickListener({

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="mfw_tab_layout">
+        <attr name="mfwtab_mode" format="enum">
+            <enum name="MATCH" value="0" />
+            <enum name="WRAP" value="1" />
+            <enum name="ADAPT" value="2" />
+            <enum name="EXACT" value="3" />
+        </attr>
+        <attr name="mfwtab_tab_text_color" format="color|reference" />
+        <attr name="mfwtab_tab_text_size" format="dimension|reference" />
+        <attr name="mfwtab_tab_text_select_color" format="color|reference" />
+        <attr name="mfwtab_tab_minwidth" format="dimension|reference" />
+        <attr name="mfwtab_tab_padding_start" format="dimension|reference" />
+        <attr name="mfwtab_tab_padding_end" format="dimension|reference" />
+        <attr name="mfwtab_tab_padding_top" format="dimension|reference" />
+        <attr name="mfwtab_tab_padding_bottom" format="dimension|reference" />
+        <attr name="mfwtab_tab_start_margin" format="dimension|reference" />
+        <attr name="mfwtab_tab_end_margin" format="dimension|reference" />
+        <attr name="mfwtab_indicator_height" format="dimension|reference" />
+        <attr name="mfwtab_indicator_color" format="dimension|reference" />
+        <attr name="mfwtab_tab_margin" format="dimension|reference" />
+        <attr name="mfwtab_indicator_drawable" format="reference" />
+        <attr name="mfwtab_title_icon_padding" format="dimension|reference" />
+        <attr name="mfwtab_bottom_line_height" format="dimension|reference" />
+        <attr name="mfwtab_slip_indicator_color" format="color|reference" />
+    </declare-styleable>
+</resources>
