@@ -3,6 +3,7 @@
 
 buildscript {
     ext.kotlin_version = '1.1.51'
+    ext.anko_version = '0.10.4'
     repositories {
         google()
         jcenter()
@@ -21,6 +22,15 @@ allprojects {
         google()
         jcenter()
     }
+}
+
+ext{
+    anko =  "org.jetbrains.anko:anko-sdk25:$anko_version"
+    anko_appcompat = "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    anko_recyclerview = "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+    anko_cardview = "org.jetbrains.anko:anko-cardview-v7:$anko_version"
+    anko_design = "org.jetbrains.anko:anko-design:$anko_version"
+    android_ktx = "androidx.core:core-ktx:0.3"
 }
 
 task clean(type: Delete) {
