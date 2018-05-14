@@ -8,7 +8,6 @@ import android.text.StaticLayout
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.view.View
-import android.view.WindowId
 import org.jetbrains.anko.sp
 
 /**
@@ -127,6 +126,7 @@ internal class ScoopMaskView : View {
         private val idTextPaint = TextPaint().apply {
             color = Color.WHITE
             flags = flags.or(Paint.ANTI_ALIAS_FLAG)
+            typeface = Typeface.SANS_SERIF
             textSize = sp(SUB_TEXT_SIZE_BIG_SP).toFloat()
         }
         private var idLayout = StaticLayout("", idTextPaint, 0,

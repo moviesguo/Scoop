@@ -62,42 +62,6 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun injectScoopLayoutInflater() {
-        //window中的inflater
-//        var scoopInflater = ScoopLayoutInflater(window.layoutInflater, this)
-//        var inflaterField: Field? = null
-//        var clazz: Class<*> = window::class.java
-//        while (inflaterField == null && clazz != Object::class.java) {
-//            for (field in clazz.declaredFields) {
-//                if (field.type == LayoutInflater::class.java) {
-//                    inflaterField = field
-//                    break
-//                }
-//            }
-//            if (inflaterField != null) break
-//            clazz = clazz.superclass
-//        }
-//        inflaterField?.isAccessible = true
-//        inflaterField?.set(window, scoopInflater)
-
-        //context中的inflater
-//        scoopInflater = ScoopLayoutInflater(LayoutInflater.from(this), this)
-//        clazz = Activity::class.java
-//        inflaterField = null
-//        while (inflaterField == null && clazz != Object::class.java) {
-//            for (field in clazz.declaredFields) {
-//                if (field.type == LayoutInflater::class.java) {
-//                    inflaterField = field
-//                    break
-//                }
-//            }
-//            if (inflaterField != null) break
-//            clazz = clazz.superclass
-//        }
-//        inflaterField?.isAccessible = true
-//        inflaterField?.set(this, scoopInflater)
-    }
-
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (!Scoop.handleTouchEvent(this, ev)) {
             return super.dispatchTouchEvent(ev)

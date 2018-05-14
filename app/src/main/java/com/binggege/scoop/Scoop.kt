@@ -152,8 +152,19 @@ class Scoop(val context: AppCompatActivity) {
             isHandlingMaskViewClick = false
         }
 
+        //如果滑动过多就不能算maskView的点击（讲道理所有的点击都要做这样的处理 但就只处理maskview好了）
+        if (isHandlingMaskViewClick && ev.action == MotionEvent.ACTION_MOVE) {
+            val dx = ev.rawX - downX
+            val dy = ev.rawY - downY
+            val dis = Math.sqrt((dx * dx + dy * dy).toDouble())
+            if (dis > ViewConfiguration.get(context).scaledTouchSlop) {
+                isHandlingMaskViewClick = false
+            }
+        }
+
         //拦截掉所有三指时候的非up事件
         if (isOpeningScoopDialog) return true
+
 
         return false
     }
